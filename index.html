@@ -10,24 +10,38 @@
     <a-scene stats>
 
       <a-assets>
-        <img src="creepy.jpg" id="creepy">
-        <img src="ghost.png" id="ghost">
-        <img src="spider.png" id="spider">
+        <img src="assets/creepy.jpg" id="creepy">
+        <img src="assets/ghost.png" id="ghost">
+        <img src="assets/spider.png" id="spider">
+        <img src="assets/start.png" id="start-text">
       </a-assets>
 
       <a-box src="#creepy" side="back" height="4" width="4" depth="8"></a-box>
 
       <a-plane src="#ghost" side="double" id="phantom" opacity="0.7" position="0 -1 3" scale="2 2 2" transparent="true">
+        <!--
+        On click: fly towards the viewer and fade out
+        -->
         <a-animation attribute="position" begin="ghost-attack" from="0 -1 3" to="0 -1 0"></a-animation>
-        <a-animation attribute="opacity" begin="ghost-attack" duration="1500" from="0.7" to="0"></a-animation>
+        <a-animation attribute="opacity" id="ghost-opacity" begin="ghost-attack" duration="1500" from="0.7" to="0"></a-animation>
+        <!--
+        When fade out has finished: hide
+        -->
+        <a-animation attribute="visible" begin="ghost-hide" to="false"></a-animation>
       </a-plane>
 
       <a-plane src="#spider" id="arachnid" side="double" position="0 0 -1" transparent="true">
+        <!--
+        When #start is clicked: drop towards viewer
+        When drop has finished: rise away from viewer
+        -->
         <a-animation id="spider-attack-start" attribute="position" begin="spider-attack" from="0 0 -1" to="0 -1 -1"></a-animation>
         <a-animation attribute="position" begin="spider-retreat" from="0 -1 -1" to="0 0 -1"></a-animation>
       </a-plane>
 
-      <a-plane id="start" color="red" position="0 -1 -1" height="0.5" width="0.5"></a-plane>
+      <a-plane src="#start-text" id="start" color="red" position="0 -1 -1" height="0.5" width="0.5" transparent></a-plane>
+
+      <!-- <a-plane id="restart" color="green" position="0 -2 0" rotation="-90 0 0" height="0.5" width="0.5"></a-plane> -->
 
       <a-entity position="0 -1 0">
         <a-camera>
@@ -37,46 +51,6 @@
 
     </a-scene>
 
-    <script>
-    var scene = document.querySelector('a-scene');
-    if (scene.hasLoaded) {
-      run();
-    } else {
-      scene.addEventListener('loaded', run);
-    }
-    window.requestTimeout = function(fn, delay) {
-      var start = new Date().getTime();
-      var handle = new Object();
-		  function loop(){
-		    var current = new Date().getTime();
-        var delta = current - start;
-			  delta >= delay ? fn.call() : handle.value = requestAnimationFrame(loop);
-      };
-      handle.value = requestAnimationFrame(loop);
-	    return handle;
-    };
-    function run() {
-
-      var spider = document.querySelector('#arachnid');
-
-      document.querySelector('#start').addEventListener('click', event => {
-        event.currentTarget.setAttribute('visible', false);
-        requestTimeout(() => {
-          spider.emit('spider-attack');
-        }, 5000);
-      });
-
-      document.querySelector('#spider-attack-start').addEventListener('animationend', () => {
-        requestTimeout(() => {
-          spider.emit('spider-retreat');
-        }, 2000);
-      });
-
-      document.querySelector('#phantom').addEventListener('click', event => {
-        event.currentTarget.emit('ghost-attack');
-      });
-    }
-    </script>
-
+    <script src="script/script.js"></script>
   </body>
 </html>
